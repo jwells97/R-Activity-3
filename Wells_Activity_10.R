@@ -1,0 +1,48 @@
+#Jason Wells
+#10/28/2019
+#Activity 10
+#Group: Adam Whitten, Robert Rayburn
+library(tidyverse)
+library(maps)
+library(socviz)
+library(usmap)
+library(rvest)
+library(cowplot)
+library(readxl)
+library(robotstxt)
+file1 <- read_csv("data/diabetes2013.csv",skip = 1)
+file1 <- file1 %>%
+  rename("region" = State ,
+         "id" = 'FIPS Codes') %>%
+  mutate(percent = as.numeric(percent),
+         number = as.numeric(number))%>%
+  na.omit()
+newFile <- left_join(county_map,file1,by="id")
+us_states <- map_data("state")
+newFile %>%
+  ggplot(mapping = aes(x=long,
+                       y=lat,
+                       group = group,
+                       fill = percent)) +
+  geom_polygon(color="black",
+               size = .5) +
+  coord_equal() +
+  theme_map() +
+  guides(fill = guide_legend(nrow = 1)) +
+  theme(legend.position = "bottom") +
+  scale_color_gradient2(low = "beige",high = "red",na.value = "gray",aesthetics = "fill")
+
+miss_diabetes <- newFile %>%
+  filter(region == "Mississippi")
+miss_diabetes %>%
+  ggplot(mapping = aes(x=long,
+                       y=lat,
+                       group = group,
+                       fill = percent)) +
+  geom_polygon(color="black",
+               size = .5) +
+  coord_equal() +
+  theme_map() +
+  guides(fill = guide_legend(nrow = 1)) +
+  theme(legend.position = "bottom") +
+  scale_color_gradient2(low = "beige",high = "red",na.value = "gray",aesthetics = "fill")
